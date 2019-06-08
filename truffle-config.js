@@ -22,7 +22,8 @@ const HDWalletProvider = require('truffle-hdwallet-provider');
 // const infuraKey = "fj4jll3k.....";
 //
 const fs = require('fs');
-const mnemonic = fs.readFileSync(".secret").toString().trim();
+const mnemonic = fs.readFileSync("mnemonic.secret").toString().trim();
+const infuraProjectId = fs.readFileSync("infuraId.secret").toString().trim();
 
 module.exports = {
   /**
@@ -75,10 +76,13 @@ module.exports = {
       // network_id: 2111,   // This network is yours, in the cloud.
       // production: true    // Treats this network as if it was a public net. (default: false)
     // }
+      kovan: {
+        provider: () => new HDWalletProvider(mnemonic, "https://kovan.infura.io/v3/" + infuraProjectId, 0),
+        network_id: 42
+      },
       thaichain: {
-        provider: () => new HDWalletProvider(mnemonic, "https://rpc.tch.in.th"),
+        provider: () => new HDWalletProvider(mnemonic, "https://rpc.tch.in.th", 0),
         network_id: 7,
-        from: "0xcDC40d4860cD2FD603e1d3322BD5aCcDfFe67A50",
         production: true
       }
   },
