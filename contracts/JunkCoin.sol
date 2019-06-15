@@ -17,6 +17,6 @@ contract JunkCoin is Ownable, ERC20, ERC20Detailed {
     }
 
     function buyToken() public payable {
-        _mint(msg.sender, 1);
+        _mint(msg.sender, 1000000);
     }
 }
