@@ -33,6 +33,6 @@ Temporary Items
 
 node_modules/
 build/
-backup/
+public/
 npm-debug.log
 *.secret

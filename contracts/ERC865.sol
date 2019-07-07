@@ -9,7 +9,6 @@ contract ERC865 is IERC865, ERC20 {
     using SafeMath for uint;
     using ECDSA for bytes32;
 
-    address internal feeAccount;
     mapping(bytes => bool) signatures;
 
     /**
@@ -20,19 +19,20 @@ contract ERC865 is IERC865, ERC20 {
      * @param _fee The amount of tokens paid to the delegate for gas costs.
      * @param _nonce The transaction number.
      */
-    function _transferPreSigned(
+    function transferPreSigned(
         bytes memory _signature,
         address payable _from,
         address payable _to,
         uint256 _value,
         uint256 _fee,
         uint256 _nonce
-    ) internal returns (bool) {
+    ) public returns (bool) {
         require(_to != address(0), "destination address must not zero");
         require(signatures[_signature] == false, "transaction already complete");
 
         //Create a hash of the transaction details
         bytes32 hashedTx = _transferPreSignedHashing(_to, _value, _fee, _nonce);
+        hashedTx = hashedTx.toEthSignedMessageHash();
 
         //Obtain the token holder's address and check balance
         address from = hashedTx.recover(_signature);
@@ -41,23 +41,15 @@ contract ERC865 is IERC865, ERC20 {
         require(total <= balanceOf(from), "balance not enough");
 
         // Transfer tokens
-        uint256 from_balance = balanceOf(from);
-        from_balance = from_balance.sub(_value).sub(_fee);
-        uint256 to_balance = balanceOf(_to);
-        to_balance = to_balance.add(_value);
-        uint256 fee_balance = balanceOf(feeAccount);
-        fee_balance = fee_balance.add(_fee);
+        _transfer(from, _to, _value);
+        _transfer(from, msg.sender, _fee);
 
         // Mark transaction as completed
         signatures[_signature] = true;
 
         //TransferPreSigned ERC865 events
         emit TransferPreSigned(msg.sender, from, _to, _value);
-        emit TransferPreSigned(msg.sender, from, feeAccount, _fee);
-        
-        //Transfer ERC20 events
-        emit Transfer(from, _to, _value);
-        emit Transfer(from, feeAccount, _fee);
+        emit TransferPreSigned(msg.sender, from, msg.sender, _fee);
 
         return true;
     }
@@ -76,22 +68,49 @@ contract ERC865 is IERC865, ERC20 {
         uint256 _fee,
         uint256 _nonce
     )
-        internal
+        internal pure
         returns (bytes32)
     {
         //Create a copy of thehashed message signed by the token holder
         bytes32 hash = keccak256(abi.encodePacked(_to, _value, _fee, _nonce));
 
         //Add prefix to hash
-        return _prefix(hash);
+        return hash;
     }
 
-    /**
-     * @dev Adds prefix to the hashed message signed by the token holder.
-     * @param _hash The hashed message (keccak256) to be prefixed.
-     * @return Prefixed hashed message to return from _transferPreSignedHashing.
-     */
-    function _prefix(bytes32 _hash) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash));
+    function createTransferHashing(
+        address _to,
+        uint256 _value,
+        uint256 _fee,
+        uint256 _nonce
+    )
+        public pure
+        returns (bytes32) 
+    {
+        return _transferPreSignedHashing(_to, _value, _fee, _nonce);
     }
+
+    function testRecover(
+        bytes32 hash,
+        bytes memory signature
+    ) 
+    public pure
+    returns (address) {
+        return hash.recover(signature);
+    }
+
+    function testHash(
+        bytes memory _text
+    )
+    public pure
+    returns (bytes32)
+    {
+        //Create a copy of thehashed message signed by the token holder
+        bytes32 hash = keccak256(abi.encodePacked(_text));
+
+        //Add prefix to hash
+        return hash;
+    }
+
+    
 }
