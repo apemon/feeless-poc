@@ -6,15 +6,6 @@ import "./IDidRegistry.sol";
 contract DidRegistry is IDidRegistry {
     using ECDSA for bytes32;
 
-    struct IDDocument {
-        address identity;
-        address[] accessors;
-        //address[] delegators;
-        //uint256 lockedPeriod;
-        //uint256 nextActivated;
-        bool exist;
-    }
-
     mapping(address => address[]) accessors;
     mapping(address => address[]) delegators;
     mapping(bytes32 => bool) accessorMap;
@@ -91,6 +82,35 @@ contract DidRegistry is IDidRegistry {
             accessorMap[masterHash] = true;
             exists[_identity] = true;
         }
+    }
+
+    function removeAccessor(address _identity, address _oldAccessor) public {
+        require(_oldAccessor != address(0), "invalid new accessor");
+        require(validOwner(_identity, msg.sender), "require valid accessor");
+        bool _isExist = exists[_identity];
+        if(!_isExist && _oldAccessor == _identity) {
+            revert("no need to remove master key");
+        }
+        bytes32 hash = keccak256(abi.encodePacked(_identity, _oldAccessor));
+        if(!accessorMap[hash]) revert("accessor not valid");
+        accessorMap[hash] = false;
+        address[] storage _accessors = accessors[_identity];
+        // delete accessor
+        bool found = false;
+        uint256 index = 0;
+        for(uint256 i = 0; i < _accessors.length; i++) {
+            if(_oldAccessor == _accessors[i]) {
+                found = true;
+                index = i;
+                break;
+            }
+        }
+        require(found,"not found");
+        for(uint256 i = index; i < _accessors.length - 1; i++) {
+            _accessors[i] = _accessors[i + 1];
+        }
+        _accessors.pop();
+        // emit event
     }
 
     function isExist(address _identity) public view returns(bool) {
