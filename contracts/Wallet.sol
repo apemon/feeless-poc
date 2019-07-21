@@ -22,7 +22,11 @@ contract Wallet is Ownable {
         emit Deposit(msg.sender, msg.value);
     }
 
-    function transfer(address payable _payee, uint256 _amount) public onlyOwner {
+    function setRegistryAddress(address _registryAddress) public onlyOwner(msg.sender) {
+        _setRegistryAddress(_registryAddress);
+    }
+
+    function transfer(address payable _payee, uint256 _amount) public onlyOwner(msg.sender) {
         _transfer(_payee, _amount);
     }
 
@@ -41,7 +45,7 @@ contract Wallet is Ownable {
 
         //Obtain the token holder's address and check balance
         address from = hashedTx.recover(_signature);
-        require(from == owner(), "invalid signature");
+        require(isOwner(from), "invalid signature");
         uint256 total = _amount.add(_fee);
         require(total <= address(this).balance, "balance not enough");
 
@@ -53,7 +57,7 @@ contract Wallet is Ownable {
         signatures[_signature] = true;
     }
 
-    function transferToken(address _tokenAddr, address payable _payee, uint256 _amount) public onlyOwner {
+    function transferToken(address _tokenAddr, address payable _payee, uint256 _amount) public onlyOwner(msg.sender) {
         IERC20 token = IERC20(_tokenAddr);
         require(token.balanceOf(address(this)) >= _amount, "not enough token");
         token.transfer(_payee, _amount);
@@ -74,10 +78,10 @@ contract Wallet is Ownable {
 
         //Obtain the token holder's address and check balance
         address from = hashedTx.recover(_signature);
-        require(from == owner(), "invalid signature");
+        require(isOwner(from), "invalid signature");
         uint256 total = _amount.add(_fee);
         IERC20 token = IERC20(_tokenAddr);
-        require(total <= token.balanceOf(from), "balance not enough");
+        require(total <= token.balanceOf(address(this)), "balance not enough");
 
         // Transfer ether
         token.transfer(_payee, _amount);
@@ -87,7 +91,7 @@ contract Wallet is Ownable {
         signatures[_signature] = true;
     }
 
-    function destroy(address payable recipient) public onlyOwner {
+    function destroy(address payable recipient) public onlyOwner(msg.sender) {
         selfdestruct(recipient);
     }
 
