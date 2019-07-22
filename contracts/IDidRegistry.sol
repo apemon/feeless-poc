@@ -26,6 +26,18 @@ interface IDidRegistry {
         bytes calldata _signature
     ) external;
 
+    function addAccessor(
+        address _identity,
+        address _newAccessor
+    ) external;
+
+    function addAccessorPreAuth(
+        address _identity,
+        address _newAccessor,
+        uint256 _nonce,
+        bytes calldata _signature
+    ) external;
+
     function validOwner(
         address _identity,
         address _owner
@@ -41,5 +53,15 @@ interface IDidRegistry {
         string identifier,
         address indexed oldAddress,
         address indexed newAddress
+    );
+
+    event AddAccessor(
+        address indexed identity,
+        address indexed newAccessor
+    );
+
+    event RemoveAccessor(
+        address indexed identity,
+        address indexed oldAccessor
     );
 }

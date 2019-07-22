@@ -11,7 +11,7 @@ contract DidRegistry is IDidRegistry {
     mapping(bytes32 => bool) accessorMap;
     mapping(address => bool) exists;
     mapping(address => uint32) nextActivated;
-    
+
     mapping(bytes => bool) signatures;
 
     mapping(bytes32 => address) proxyNames;
@@ -65,8 +65,22 @@ contract DidRegistry is IDidRegistry {
     }
 
     function addAccessor(address _identity, address _newAccessor) public {
+        _addAccessor(_identity, msg.sender, _newAccessor);
+    }
+
+    function addAccessorPreAuth(address _identity, address _newAccessor, uint256 _nonce, bytes memory _signature) public {
+        require(signatures[_signature] == false, "transaction already complete");
+        // check signature
+        bytes32 hashedTx = createAddAccessorPreAuth(_identity, _newAccessor, _nonce);
+        hashedTx = hashedTx.toEthSignedMessageHash();
+        address from = hashedTx.recover(_signature);
+        _addAccessor(_identity, from, _newAccessor);
+        signatures[_signature] = true;
+    }
+
+    function _addAccessor(address _identity, address _from, address _newAccessor) internal {
         require(_newAccessor != address(0), "invalid new accessor");
-        require(validOwner(_identity, msg.sender), "require valid accessor");
+        require(validOwner(_identity, _from), "require valid accessor");
         bool _isExist = exists[_identity];
         if(!_isExist && _newAccessor == _identity) {
             revert("no need to add master key");
@@ -82,11 +96,30 @@ contract DidRegistry is IDidRegistry {
             accessorMap[masterHash] = true;
             exists[_identity] = true;
         }
+        emit AddAccessor(_identity, _newAccessor);
+    }
+
+    function createAddAccessorPreAuth(address _identity, address _newAccessor, uint256 _nonce) public pure returns(bytes32) {
+        return keccak256(abi.encodePacked("add", _identity, _newAccessor, _nonce));
     }
 
     function removeAccessor(address _identity, address _oldAccessor) public {
-        require(_oldAccessor != address(0), "invalid new accessor");
-        require(validOwner(_identity, msg.sender), "require valid accessor");
+        _removeAccessor(_identity, msg.sender, _oldAccessor);
+    }
+
+    function removeAccessorPreAuth(address _identity, address _oldAccessor, uint256 _nonce, bytes memory _signature) public {
+        require(signatures[_signature] == false, "transaction already complete");
+        // check signature
+        bytes32 hashedTx = createRemoveAccessorPreAuth(_identity, _oldAccessor, _nonce);
+        hashedTx = hashedTx.toEthSignedMessageHash();
+        address from = hashedTx.recover(_signature);
+        _removeAccessor(_identity, from, _oldAccessor);
+        signatures[_signature] = true;
+    }
+
+    function _removeAccessor(address _identity, address _from, address _oldAccessor) internal {
+        require(_oldAccessor != address(0), "invalid old accessor");
+        require(validOwner(_identity, _from), "require valid accessor");
         bool _isExist = exists[_identity];
         if(!_isExist && _oldAccessor == _identity) {
             revert("no need to remove master key");
@@ -110,7 +143,12 @@ contract DidRegistry is IDidRegistry {
             _accessors[i] = _accessors[i + 1];
         }
         _accessors.pop();
-        // emit event
+        emit RemoveAccessor(_identity, _oldAccessor);
+    }
+
+    function createRemoveAccessorPreAuth(address _identity, address _oldAccessor, uint256 _nonce)
+ public pure returns(bytes32) {
+        return keccak256(abi.encodePacked("remove", _identity, _oldAccessor, _nonce));
     }
 
     function isExist(address _identity) public view returns(bool) {
