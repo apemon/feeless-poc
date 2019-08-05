@@ -1,5 +1,5 @@
-var JunkCoin = artifacts.require("./JunkCoin");
+var TCCoin = artifacts.require("./TCCoin");
 
 module.exports = function(deployer, network, accounts) {
-    deployer.deploy(JunkCoin, "JunkCoin", "JUNK", 0);
+    deployer.deploy(TCCoin, "TCCoin", "TC", 0);
 }

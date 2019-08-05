@@ -5,7 +5,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./ERC865.sol";
 
-contract JunkCoin is Ownable, ERC865, ERC20Detailed {
+contract TCCoin is Ownable, ERC865, ERC20Detailed {
 
     using SafeMath for uint;
 
@@ -16,7 +16,7 @@ contract JunkCoin is Ownable, ERC865, ERC20Detailed {
         
     }
 
-    function buyToken() public payable {
-        _mint(msg.sender, 1000000);
+    function mint(address _recipient, uint256 _amount) public payable {
+        _mint(_recipient, _amount);
     }
 }
