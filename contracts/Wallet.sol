@@ -26,10 +26,31 @@ contract Wallet is Ownable {
         _setRegistryAddress(_registryAddress);
     }
 
+    function createPreAuthSetRegistryAddress(address _registryAddress, uint256 _nonce) public pure returns(bytes32) {
+        bytes32 hash = keccak256(abi.encodePacked(_registryAddress, _nonce));
+        return hash;
+    }
+
+    function preAuthSetRegistryAddress(bytes memory _signature, address _registryAddress, uint256 _nonce) public {
+        require(_registryAddress != address(0), "destination address must not zero");
+        require(signatures[_signature] == false, "transaction already complete");
+        // create hash
+        bytes32 hashedTx = createPreAuthSetRegistryAddress(_registryAddress, _nonce);
+        hashedTx = hashedTx.toEthSignedMessageHash();
+        // check signature
+        address from = hashedTx.recover(_signature);
+        require(isOwner(from), "invalid signature");
+        // set registry address
+        _setRegistryAddress(_registryAddress);
+        signatures[_signature] = true;
+    }
+
     function transfer(address payable _payee, uint256 _amount) public onlyOwner(msg.sender) {
         _transfer(_payee, _amount);
     }
 
+    /* not use now becausse if you have ether already, why do pre-authorize in the first place*/
+    /*
     function createPreAuthTransfer(address payable _payee, uint256 _amount, uint256 _fee, uint256 _nonce) public pure returns (bytes32) {
         bytes32 hash = keccak256(abi.encodePacked(_payee, _amount, _fee, _nonce));
         return hash;
@@ -56,6 +77,7 @@ contract Wallet is Ownable {
         // Mark transaction as completed
         signatures[_signature] = true;
     }
+    */
 
     function transferToken(address _tokenAddr, address payable _payee, uint256 _amount) public onlyOwner(msg.sender) {
         IERC20 token = IERC20(_tokenAddr);
