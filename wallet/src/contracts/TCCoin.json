@@ -1705,10 +1705,127 @@
       "links": {},
       "address": "0x7b5ad7d9fCC31E6881DabEdA353Ba84C3A02A875",
       "transactionHash": "0xb7d7f4b106621919d5ec865b1f912749338a2eaedecf0752f2ed46d2447436c5"
+    },
+    "5777": {
+      "events": {
+        "0x0f6798a560793a54c3bcfe86a93cde1e73087d944c0ea20544137d4121396885": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "Mint",
+          "type": "event",
+          "signature": "0x0f6798a560793a54c3bcfe86a93cde1e73087d944c0ea20544137d4121396885"
+        },
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "name": "Transfer",
+          "type": "event",
+          "signature": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+        },
+        "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "spender",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "name": "Approval",
+          "type": "event",
+          "signature": "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"
+        },
+        "0x339e733e8f3d5b80a99579a1bd0d885dd3d96783439f354abebcd98f88b6462c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "delegate",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "name": "TransferPreSigned",
+          "type": "event",
+          "signature": "0x339e733e8f3d5b80a99579a1bd0d885dd3d96783439f354abebcd98f88b6462c"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event",
+          "signature": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0"
+        }
+      },
+      "links": {},
+      "address": "0x93b3e3fdadfff925129a9D66f1b76e9Be2d27a1A",
+      "transactionHash": "0xbcf96ec5810961ff7f5a5918fe2cfe09d3fbd3aac67b462cd02f8c8602fbf81a"
     }
   },
   "schemaVersion": "3.0.10",
-  "updatedAt": "2019-07-31T01:49:15.257Z",
+  "updatedAt": "2019-08-11T11:21:32.161Z",
   "devdoc": {
     "methods": {
       "allowance(address,address)": {

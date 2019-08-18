@@ -1,18 +1,25 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 const Web3 = require('web3');
-const TokenContractSource = require('./../build/contracts/JunkCoin.json');
 
-const web3 = new Web3('http://localhost:7545');
-
-let TokenAddress = TokenContractSource.networks['5777'].address;
-let instance = new web3.eth.Contract(TokenContractSource.abi, TokenAddress);
+require('dotenv').config();
 
 const app = express();
+
+app.use(bodyParser.json());
+app.use(cors());
+
 app.listen(3000, () => {
 
 });
 
-app.get('/balance/:addr', async(req,res) => {
-    let balance = await instance.methods.balanceOf(req.params.addr).call();
-    return res.send(balance);
+app.get('/info', (req,res) => {
+    var info = {
+        web3Address: process.env.web3Address,
+        factoryAddress: process.env.factoryAddress,
+        didRegistryAddress: process.env.didRegistryAddress,
+        tokenAddress: process.env.tokenAddress
+    }
+    return res.send(info);
 });

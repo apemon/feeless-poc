@@ -36,3 +36,4 @@ build/
 public/
 npm-debug.log
 *.secret
+.env
