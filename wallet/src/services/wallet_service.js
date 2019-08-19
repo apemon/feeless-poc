@@ -1,7 +1,6 @@
 import Web3 from 'web3'
 import axios from 'axios'
 import moment from 'moment'
-import DidRegistry from '../contracts/DidRegistry.json'
 import WalletContract from '../contracts/Wallet.json'
 
 class WalletService {
@@ -30,6 +29,19 @@ class WalletService {
 
     }
 
+    isEmpty() {
+        return !localStorage["TCWallet"]
+    }
+
+    loadAccount() {
+        let wallet = this.web3.eth.accounts.wallet.load('')
+        return wallet[0]
+    }
+
+    loadWalletInfo() {
+        return JSON.parse(localStorage.getItem('TCWallet'))
+    }
+
     createNewPrivateKey() {
         // create wallet first
         let wallet = this.web3.eth.accounts.wallet.create()
@@ -51,14 +63,25 @@ class WalletService {
         }
         try {
             let response = await axios.post(this.provider + '/wallet/deploy', request)
+            let walletObj = {
+                address: computedAddress,
+                owner: address
+            }
+            localStorage.setItem('TCWallet', JSON.stringify(walletObj))
             return response.data.address
         } catch (err) {
             console.log(err)
         }
     }
 
-    registerDIDRegistry(username) {
-
+    async registerDidRegistry(walletAddress, owner, privateKey) {
+        // create hash msg
+        let instance = new this.web3.eth.Contract(WalletContract.abi, walletAddress)
+        let nonce = await this.web3.eth.getTransactionCount(owner)
+        let hash = await instance.methods.createPreAuthSetRegistryAddress(this.config.didRegistryAddress, nonce).call()
+        // sign
+        let signature = this.web3.eth.accounts.sign(hash, privateKey)
+        // send to backend to process pre auth request
     }
 
     queryBalance() {

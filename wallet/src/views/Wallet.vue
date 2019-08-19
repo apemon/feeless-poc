@@ -24,12 +24,22 @@ export default {
         this.walletService = new WalletService()
         try {
             await this.walletService.init('http://localhost:3000')
-            this.account = this.walletService.createNewPrivateKey()
-            // generate create2 wallet address
-            let salt = 1
-            let address = this.account.address
-            let computedAddress = this.walletService.buildCreate2Address(address, salt)
-            let response = await this.walletService.deployWallet(address, computedAddress, salt)
+            if(this.walletService.isEmpty()) {
+                this.account = this.walletService.createNewPrivateKey()
+                // generate create2 wallet address
+                let salt = 1
+                let address = this.account.address
+                let computedAddress = this.walletService.buildCreate2Address(address, salt)
+                let response = await this.walletService.deployWallet(address, computedAddress, salt)
+            } else {
+                // load wallet
+                let info = this.walletService.loadWalletInfo()
+                this.account = this.walletService.loadAccount()
+                // register name
+                let hash = await this.walletService.registerDidRegistry(info.address, info.owner, this.account.privateKey)
+            }
+            
+            
         } catch (err) {
             console.log(err)
             return
