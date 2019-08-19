@@ -17,15 +17,17 @@ class WalletService {
         } catch(err) {
             console.log(err)
             // push message to ui
+            throw err
         }
         
         // get web3
         if (typeof this.web3 !== 'undefined') {
-            this.web3 = new Web3(this.web3.currentProvider);
+            this.web3 = new Web3(this.web3.currentProvider)
         } else {
-            this.web3 = new Web3(new Web3.providers.HttpProvider(this.config.web3Address));
+            this.web3 = new Web3(new Web3.providers.HttpProvider(this.config.web3Address))
         }
         // web client for wallet service provider
+
     }
 
     createNewPrivateKey() {
@@ -39,31 +41,51 @@ class WalletService {
         return account
     }
 
+    async deployWallet(address, computedAddress, salt) {
+        let bytecode = this.createByteCode(address)
+        let request = {
+            bytecode: bytecode,
+            address: address,
+            computedAddress: computedAddress,
+            salt: salt
+        }
+        try {
+            let response = await axios.post(this.provider + '/wallet/deploy', request)
+            return response.data.address
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     registerDIDRegistry(username) {
 
     }
-    createAddress(salt) {
 
-    }
     queryBalance() {
 
     }
+
     queryTransaction() {
 
     }
 
     // specific web3 method
     buildCreate2Address(address, salt) {
-        let walletByteCode = WalletContract.bytecode
-        let byteCode = `${walletByteCode}${this.encodeParam('address', address).slice(2)}`
+        let bytecode = this.createByteCode(address)
         let saltHex = this.numberToUint256(salt)
         return `0x${this.web3.utils.sha3(`0x${[
             'ff',
             this.config.factoryAddress,
             saltHex,
-            this.web3.utils.sha3(byteCode)
+            this.web3.utils.sha3(bytecode)
         ].map(x => x.replace(/0x/, ''))
         .join('')}`).slice(-40)}`.toLowerCase()
+    }
+
+    createByteCode(address) {
+        let walletByteCode = WalletContract.bytecode
+        let bytecode = `${walletByteCode}${this.encodeParam('address', address).slice(2)}`
+        return bytecode 
     }
 
     numberToUint256(value) {
