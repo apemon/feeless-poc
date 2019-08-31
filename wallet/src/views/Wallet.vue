@@ -31,12 +31,18 @@ export default {
                 let address = this.account.address
                 let computedAddress = this.walletService.buildCreate2Address(address, salt)
                 let response = await this.walletService.deployWallet(address, computedAddress, salt)
+                // register name
+                let info = this.walletService.loadWalletInfo()
+                await this.walletService.registerDidRegistry(info.address, this.account.privateKey)
+                await this.walletService.mint(info.address)
             } else {
                 // load wallet
                 let info = this.walletService.loadWalletInfo()
                 this.account = this.walletService.loadAccount()
-                // register name
-                let hash = await this.walletService.registerDidRegistry(info.address, info.owner, this.account.privateKey)
+                
+                // load balance
+                this.balance = await this.walletService.queryBalance(info.address)
+                console.log(this.balance)
             }
             
             

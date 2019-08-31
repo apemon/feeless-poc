@@ -8,6 +8,7 @@ const explorer = require('./explorer')
 const Factory = require('./abi/Factory')
 const Wallet = require('./abi/Wallet')
 const DidRegistry = require('./abi/DidRegistry')
+const Token = require('./abi/Token')
 
 require('dotenv').config()
 
@@ -29,6 +30,7 @@ const provider = new HDWalletProvider(privateKey, web3Address)
 const web3 = new Web3(provider)
 const factory = new web3.eth.Contract(Factory.abi, factoryAddress)
 const didRegistry = new web3.eth.Contract(DidRegistry.abi, didRegistryAddress)
+const token = new web3.eth.Contract(Token.abi, tokenAddress)
 
 app.listen(3000, () => {
 
@@ -40,6 +42,7 @@ app.get('/info', (req,res) => {
         factoryAddress: factoryAddress,
         didRegistryAddress: didRegistryAddress,
         tokenAddress: tokenAddress,
+        tokenDecimal: 2,
         network: network
     }
     return res.send(info)
@@ -89,10 +92,24 @@ app.post('/wallet/deploy', async (req,res) => {
     }
 })
 
-app.post('/wallet/owner/setRegistry', async (req,res) => {
+app.post('/wallet/:address/mint', async(req,res) => {
+    let address = req.params.address
+    try {
+        let response = await token.methods.mint(address, 100000).send({
+            from: deployerAddress,
+            gas: 4500000,
+            gasPrice: 1000000000
+        })
+        return res.status(204)
+    } catch(err) {
+        console.log(err)
+    }
+})
+
+app.post('/wallet/:address/setRegistry', async (req,res) => {
+    let address = req.params.address
     let body = req.body
-    console.log(body)
-    let wallet = new web3.eth.Contract(Wallet.abi, body.walletAddress)
+    let wallet = new web3.eth.Contract(Wallet.abi, address)
     let nonce = await web3.eth.getTransactionCount(deployerAddress)
     try {
         let response = await wallet.methods.preAuthSetRegistryAddress(body.signature, didRegistryAddress, body.nonce).send({
@@ -101,7 +118,6 @@ app.post('/wallet/owner/setRegistry', async (req,res) => {
             gasPrice: 1000000000,
             nonce
         })
-        console.log(response)
         return res.send(response.data)
     } catch(err) {
         console.log(err)

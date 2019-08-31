@@ -2,6 +2,8 @@ import Web3 from 'web3'
 import axios from 'axios'
 import moment from 'moment'
 import WalletContract from '../contracts/Wallet.json'
+import TokenContract from '../contracts/TCCoin.json'
+import BigNumber from 'bignumber.js'
 
 class WalletService {
     constructor() {
@@ -83,16 +85,14 @@ class WalletService {
         }
     }
 
-    async registerDidRegistry(walletAddress, owner, privateKey) {
+    async registerDidRegistry(walletAddress, privateKey) {
         // create hash msg
         let instance = new this.web3.eth.Contract(WalletContract.abi, walletAddress)
         let walletInfo = await this.getWalletInfo(walletAddress)
         let nonce = walletInfo.nonce
-        console.log(nonce)
         let hash = await instance.methods.createPreAuthSetRegistryAddress(this.config.didRegistryAddress, nonce).call()
         // sign
         let signature = this.web3.eth.accounts.sign(hash, privateKey)
-        console.log(signature)
         // send to backend to process pre auth request
         let request = {
             walletAddress: walletAddress,
@@ -100,19 +100,30 @@ class WalletService {
             signature: signature.signature
         }
         try {
-            let response = await axios.post(this.provider + '/wallet/owner/setRegistry', request)
+            let response = await axios.post(this.provider + '/wallet/'+ walletAddress +'/setRegistry', request)
             return response.data
         } catch(err) {
             console.log(err)
         }
     }
 
-    queryBalance() {
-
+    async queryBalance(walletAddress) {
+        let instance = new this.web3.eth.Contract(TokenContract.abi, this.config.tokenAddress)
+        let balance = await instance.methods.balanceOf(walletAddress).call()
+        return BigNumber(balance).div(1e2).toNumber()
     }
 
     queryTransaction() {
 
+    }
+
+    async mint(walletAddress) {
+        try {
+            let response = await axios.post(this.provider + '/wallet/' + walletAddress + '/mint', {})
+            return response
+        } catch(err) {
+            console.log(err)
+        }
     }
 
     // specific web3 method
