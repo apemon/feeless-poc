@@ -53,8 +53,13 @@ class WalletService {
         return account
     }
 
-    async getNonce(address) {
-        
+    async getWalletInfo(address) {
+        try {
+            let response = await axios.get(this.provider + '/wallet/' + address )
+            return response.data
+        } catch(err) {
+            console.log(err)
+        }
     }
 
     async deployWallet(address, computedAddress, salt) {
@@ -81,7 +86,8 @@ class WalletService {
     async registerDidRegistry(walletAddress, owner, privateKey) {
         // create hash msg
         let instance = new this.web3.eth.Contract(WalletContract.abi, walletAddress)
-        let nonce = await this.web3.eth.getTransactionCount(walletAddress)
+        let walletInfo = await this.getWalletInfo(walletAddress)
+        let nonce = walletInfo.nonce
         console.log(nonce)
         let hash = await instance.methods.createPreAuthSetRegistryAddress(this.config.didRegistryAddress, nonce).call()
         // sign

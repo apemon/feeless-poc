@@ -95,7 +95,7 @@ app.post('/wallet/owner/setRegistry', async (req,res) => {
     let wallet = new web3.eth.Contract(Wallet.abi, body.walletAddress)
     let nonce = await web3.eth.getTransactionCount(deployerAddress)
     try {
-        let response = await wallet.methods.preAuthSetRegistryAddress(body.signature, body.walletAddress, body.nonce).send({
+        let response = await wallet.methods.preAuthSetRegistryAddress(body.signature, didRegistryAddress, body.nonce).send({
             from: deployerAddress,
             gas: 4500000,
             gasPrice: 1000000000,
