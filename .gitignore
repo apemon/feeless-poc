@@ -33,7 +33,6 @@ Temporary Items
 
 node_modules/
 build/
-public/
 npm-debug.log
 *.secret
 .env
