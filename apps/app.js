@@ -25,6 +25,7 @@ const privateKey = process.env.privateKey
 const deployerAddress = process.env.deployerAddress
 const network = process.env.network
 const explorerApiKey = process.env.explorerApiKey
+const fee = process.env.fee | 0
 
 const provider = new HDWalletProvider(privateKey, web3Address)
 const web3 = new Web3(provider)
@@ -43,7 +44,8 @@ app.get('/info', (req,res) => {
         didRegistryAddress: didRegistryAddress,
         tokenAddress: tokenAddress,
         tokenDecimal: 2,
-        network: network
+        network: network,
+        fee: fee
     }
     return res.send(info)
 })
@@ -118,7 +120,27 @@ app.post('/wallet/:address/setRegistry', async (req,res) => {
             gasPrice: 1000000000,
             nonce
         })
-        return res.send(response.data)
+        return res.send(response)
+    } catch(err) {
+        console.log(err)
+        return res.status(400).json(err)
+    }
+})
+
+app.post('/wallet/:address/transfer', async(req,res) => {
+    let address = req.params.address
+    let body = req.body
+    console.log(body)
+    let wallet = new web3.eth.Contract(Wallet.abi, address)
+    let nonce = await web3.eth.getTransactionCount(deployerAddress)
+    try {
+        let response = await wallet.methods.preAuthTransferToken(body.signature, tokenAddress, body.destination, body.amount, fee, body.nonce).send({
+            from: deployerAddress,
+            gas: 4500000,
+            gasPrice: 1000000000,
+            nonce
+        })
+        return res.send(response)
     } catch(err) {
         console.log(err)
         return res.status(400).json(err)

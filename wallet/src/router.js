@@ -13,6 +13,16 @@ export default new Router({
       component: () => import('./views/Wallet.vue')
     },
     {
+      path: '/receive',
+      name: 'receive',
+      component: () => import('./views/Receive.vue')
+    },
+    {
+      path: '/send',
+      name: 'send',
+      component: () => import('./views/Send.vue')
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting

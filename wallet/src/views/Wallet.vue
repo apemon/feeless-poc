@@ -1,6 +1,17 @@
 <template>
     <section class="wallet-main container hero is-medium">
         <!-- create wallet if not have  -->
+        <div class="wallet-nav">
+            <b-dropdown aria-role="list">
+                <b-icon icon="ellipsis-v" slot="trigger">
+                </b-icon>
+
+                <b-dropdown-item aria-role="listitem">
+                    <b-icon icon="file-export" />
+                    Backup
+                </b-dropdown-item>
+            </b-dropdown>
+        </div>
         <div class="wallet-body">
             <div class="wallet-username">
                 @apemon
@@ -10,14 +21,20 @@
             </div>
             <div class="button-group">
                 <b-button class="wallet-button" size="is-medium"
-                    icon-left="paper-plane">
+                    icon-left="paper-plane"
+                    @click="send">
                     Send
                 </b-button>
                 <b-button class="wallet-button" size="is-medium"
-                    icon-left="qrcode">
+                    icon-left="qrcode"
+                    @click="receive">
                     Receive
                 </b-button>
-        </div>
+                <b-button class="wallet-button" size="is-medium"
+                    icon-left="history">
+                    Transactions
+                </b-button>
+            </div>
         </div>
     </section>
 </template>
@@ -40,7 +57,7 @@ export default {
     async mounted() {
         this.walletService = new WalletService()
         try {
-            await this.walletService.init('http://localhost:3000')
+            await this.walletService.init('http://192.168.1.37:3000')
             if(this.walletService.isEmpty()) {
                 this.account = this.walletService.createNewPrivateKey()
                 // generate create2 wallet address
@@ -69,55 +86,21 @@ export default {
         }
     },
     methods: {
-        
+        receive() {
+            this.$router.push({name: 'receive'})
+        },
+        send() {
+            this.$router.push({name: 'send'})
+        }
     }
 }
 </script>
 
 <style lang="css" scoped>
-.wallet-main {
-    width: 100%;
-    background-color: #536dfe;
-    color: white;
-}
-.wallet-body {
-    padding-bottom: 2rem;
-    padding-top: 2rem;
-}
 .wallet-username {
     font-size: 32px;
 }
 .wallet-balance {
     font-size: 40px;
-}
-.button-group {
-    margin: 40px 20px 20px 20px;
-}
-.wallet-button {
-    width: 100%;
-    height: 60px;
-    margin-bottom: 20px;
-}
-
-@media only screen and (min-width: 1025px) {
-    .wallet-main {
-        width:70%;
-        background-color: #536dfe;
-        color: white;
-    }
-    .wallet-body {
-        padding-bottom: 6rem;
-        padding-top: 6rem;
-    }
-    .button-group {
-        margin-top: 40px;
-    }
-    .wallet-button {
-        min-width: 150px;
-        max-width: 100%;
-        margin: 0px 20px;
-        text-align: center;
-        height: 50px;
-    }
 }
 </style>

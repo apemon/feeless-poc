@@ -88,29 +88,5 @@ contract ERC865 is IERC865, ERC20 {
         returns (bytes32) 
     {
         return _transferPreSignedHashing(_to, _value, _fee, _nonce);
-    }
-
-    function testRecover(
-        bytes32 hash,
-        bytes memory signature
-    ) 
-    public pure
-    returns (address) {
-        return hash.recover(signature);
-    }
-
-    function testHash(
-        bytes memory _text
-    )
-    public pure
-    returns (bytes32)
-    {
-        //Create a copy of thehashed message signed by the token holder
-        bytes32 hash = keccak256(abi.encodePacked(_text));
-
-        //Add prefix to hash
-        return hash;
-    }
-
-    
+    }    
 }

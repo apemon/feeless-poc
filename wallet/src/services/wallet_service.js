@@ -113,8 +113,28 @@ class WalletService {
         return BigNumber(balance).div(1e2).toNumber()
     }
 
-    queryTransaction() {
-
+    async transfer(walletAddress, destination, amount, privateKey) {
+        console.log(walletAddress)
+        let walletInfo = await this.getWalletInfo(walletAddress)
+        let nonce = walletInfo.nonce
+        let instance = new this.web3.eth.Contract(WalletContract.abi, walletAddress)
+        amount = BigNumber(amount).times(1e2).toNumber()
+        let hash = await instance.methods.createPreAuthTransferToken(this.config.tokenAddress, destination, amount, this.config.fee, nonce).call()
+        let signature = this.web3.eth.accounts.sign(hash, privateKey)
+        let request = {
+            walletAddress: walletAddress,
+            nonce: nonce,
+            fee: this.config.fee,
+            amount: amount,
+            destination: destination,
+            signature: signature.signature
+        }
+        try {
+            let response = await axios.post(this.provider + '/wallet/' + walletAddress + '/transfer', request)
+            return response.data
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     async mint(walletAddress) {
