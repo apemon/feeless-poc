@@ -16,6 +16,7 @@
     "qrcode.vue": "^1.6.2",
     "useragent": "^2.3.0",
     "vue": "^2.6.10",
+    "vue-qrcode-reader": "^2.0.4",
     "vue-router": "^3.0.3",
     "web3": "^1.2.1"
   },

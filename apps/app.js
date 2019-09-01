@@ -3,6 +3,8 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const HDWalletProvider = require('truffle-hdwallet-provider')
 const Web3 = require('web3')
+const https = require('https')
+const fs = require('fs')
 const explorer = require('./explorer')
 
 const Factory = require('./abi/Factory')
@@ -16,6 +18,13 @@ const app = express()
 
 app.use(bodyParser.json())
 app.use(cors())
+
+const httpsServer = https.createServer({
+    key: fs.readFileSync('./key.pem'),
+    cert: fs.readFileSync('./cert.pem')
+}, app)
+
+httpsServer.listen(3000)
 
 const web3Address = process.env.web3Address
 const factoryAddress = process.env.factoryAddress
@@ -32,10 +41,6 @@ const web3 = new Web3(provider)
 const factory = new web3.eth.Contract(Factory.abi, factoryAddress)
 const didRegistry = new web3.eth.Contract(DidRegistry.abi, didRegistryAddress)
 const token = new web3.eth.Contract(Token.abi, tokenAddress)
-
-app.listen(3000, () => {
-
-});
 
 app.get('/info', (req,res) => {
     var info = {

@@ -27,21 +27,19 @@ import WalletService from '../services/wallet_service'
 import QrcodeVue from 'qrcode.vue'
 
 export default {
-    filters: {
-
-    },
     components: {
         QrcodeVue
     },
     data() {
         return {
-            address: 'a28739cc1dc16f71a53da6c55411ccefdb4ea3abeac7fbfb3027055d261f50ef',
+            address: '',
             size: 260
         }
     },
     async mounted() {
+        // init wallet
         this.walletService = new WalletService()
-        await this.walletService.init('http://192.168.1.37:3000')
+        await this.walletService.init('https://192.168.1.37:3000')
         this.info = this.walletService.loadWalletInfo()
         this.account = this.walletService.loadAccount()
         this.address = this.info.address

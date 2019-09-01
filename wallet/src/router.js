@@ -23,6 +23,11 @@ export default new Router({
       component: () => import('./views/Send.vue')
     },
     {
+      path: '/scan',
+      name: 'scan',
+      component: () => import('./views/QRScan.vue')
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting

@@ -2,7 +2,7 @@
     <section class="wallet-main container hero is-medium">
         <div class="wallet-nav">
             <b-icon class="wallet-nav-icon" icon="user-circle"></b-icon>
-            <b-icon class="wallet-nav-icon" icon="camera"></b-icon>
+            <b-icon class="wallet-nav-icon" icon="camera" @click.native="qrscan"></b-icon>
         </div>
         <div class="wallet-body">
             <div class="wallet-form">
@@ -47,18 +47,27 @@ export default {
         }
     },
     async mounted() {
+        // route query
+        if(this.$route.query) {
+            if(this.$route.query.dest) {
+                this.dest = this.$route.query.dest
+            }
+        }
+        // init wallet
         this.walletService = new WalletService()
-        await this.walletService.init('http://192.168.1.37:3000')
+        await this.walletService.init('https://192.168.1.37:3000')
         this.info = this.walletService.loadWalletInfo()
         this.account = this.walletService.loadAccount()
     },
     methods: {
         async transfer() {
-            console.log('transfer')
             await this.walletService.transfer(this.info.address, this.dest, this.amount, this.account.privateKey)
         },
         back() {
-            this.$router.back()
+            this.$router.push({name:'home'})
+        },
+        qrscan() {
+            this.$router.push({name:'scan'})
         }
     }
 }

@@ -57,7 +57,7 @@ export default {
     async mounted() {
         this.walletService = new WalletService()
         try {
-            await this.walletService.init('http://192.168.1.37:3000')
+            await this.walletService.init('https://192.168.1.37:3000')
             if(this.walletService.isEmpty()) {
                 this.account = this.walletService.createNewPrivateKey()
                 // generate create2 wallet address
