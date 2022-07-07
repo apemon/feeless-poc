@@ -12,7 +12,7 @@
     "bignumber.js": "^9.0.0",
     "buefy": "^0.8.2",
     "core-js": "^2.6.5",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "qrcode.vue": "^1.6.2",
     "useragent": "^2.3.0",
     "vue": "^2.6.10",
